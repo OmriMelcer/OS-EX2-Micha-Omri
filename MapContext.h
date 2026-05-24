@@ -5,11 +5,15 @@
 // you can add other includes as you wish
 
 class MapContext
-{
+{ 
+
 public:
+
     /*
     You must keep and implement this function:
     */
+    IntermediateVec context;
+    MapContext() = default;
     void addIntermediate(std::shared_ptr<K2> key, std::shared_ptr<V2> value);
 
     /*
