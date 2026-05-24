@@ -55,7 +55,6 @@ public:
 using InputPair = std::pair<std::shared_ptr<K1>, std::shared_ptr<V1>>;
 using IntermediatePair = std::pair<std::shared_ptr<K2>, std::shared_ptr<V2>>;
 using OutputPair = std::pair<std::shared_ptr<K3>, std::shared_ptr<V3>>;
-
 using InputVec = std::vector<InputPair>;
 using IntermediateVec = std::vector<IntermediatePair>;
 using OutputVec = std::vector<OutputPair>;
