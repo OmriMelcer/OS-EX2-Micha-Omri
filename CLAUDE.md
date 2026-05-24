@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Role
+
+This is a study project. The primary role of Claude here is to **explain, consult, run code, review code, and debug** — not to write large amounts of code. Small targeted changes (fixing a bug, filling in a stub, adjusting a line) are fine. Avoid writing entire implementations or large new blocks of code unprompted; instead explain the concept and let the student implement it.
+
 ## Project
 
 OS Exercise 2 — a C++20 MapReduce framework library (no `main`, no printing). The framework is a black-box multi-threaded library; clients supply only `map` and `reduce` logic.
