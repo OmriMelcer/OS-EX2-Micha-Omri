@@ -65,12 +65,15 @@ private:
   std::atomic<int> indexer;
   std::atomic<uint64_t> state_incoder;
   std::vector<std::thread> threads;
-  OutputVec outputVec;
+  std::shared_ptr<OutputVec> outputVec;
+  std::vector<IntermediateVec> shuffleQueue;
   std::mutex outputVecMutex;
-  std::vector<MapContext> mapContexts; //different from claudes idea
+  std::vector<MapContext> mapContexts; 
   std::barrier<> barrier;
   std::mutex waitMutex;
   bool joined;
+  void update_state(MapReduceStage new_stage, uint64_t to_do);
+  void threadWorker(int id);
 };
 	
 #endif // MAP_REDUCE_JOB_H
