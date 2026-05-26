@@ -74,6 +74,7 @@ private:
   bool joined;
   void update_state(MapReduceStage new_stage, uint64_t to_do);
   void threadWorker(int id);
+  void shuffleFunc();
 };
 	
 #endif // MAP_REDUCE_JOB_H
