@@ -7,6 +7,8 @@ Implement:
 */
 
 
+
+
 MapReduceJob::MapReduceJob(const MapReduceClient &client, const InputVec &inputVec, int multiThreadLevel)
   : inputVec(inputVec), client(client), numThreads(multiThreadLevel),
     indexer(0), state_incoder(0), barrier(multiThreadLevel), joined(false)
@@ -62,8 +64,50 @@ void MapReduceJob::threadWorker(int id)
 
 void MapReduceJob::shuffleFunc()
 {
-  //TODO
-  return;
+  bool not_empty_all = true;
+  while (not_empty_all)
+  {
+    int max_back_index = find_max_back();
+    if (max_back_index == -1)
+    {
+      not_empty_all = false;
+      break;
+    }
+    IntermediatePair max_back_pair = mapContexts[max_back_index].context.back();
+    IntermediateVec cur_vec = IntermediateVec();
+    for (int i = 0; i < numThreads; ++i) {
+      // backs of all vectors are <= so if current !< then it is equal.
+      while (!mapContexts[i].context.empty() && !(*mapContexts[i].context.back().first < *max_back_pair.first) ) {
+        cur_vec.push_back(mapContexts[i].context.back());
+        mapContexts[i].context.pop_back();
+        state_incoder++;  
+      }
+    }
+    shuffleQueue.push_back(cur_vec);
+  }
+}
+
+int MapReduceJob::find_max_back() const
+{
+  int max_back_index = 0;
+  bool all_empty = true;
+  IntermediatePair max_back_pair = IntermediatePair(nullptr, nullptr);
+  for (int i = 0; i < numThreads; ++i) {
+    if (!mapContexts[i].context.empty()) {
+      all_empty = false;
+      if (max_back_pair.first == nullptr) {
+        max_back_pair = mapContexts[i].context.back();
+        max_back_index = i;
+        continue;
+      }
+      IntermediatePair current_back_pair = mapContexts[i].context.back();
+      if (*max_back_pair.first < *current_back_pair.first) {
+        max_back_pair = current_back_pair;
+        max_back_index = i;
+      }
+    }
+  }
+  return all_empty ? -1 : max_back_index;
 }
 
 void MapReduceJob::update_state(MapReduceStage new_stage, uint64_t to_do)

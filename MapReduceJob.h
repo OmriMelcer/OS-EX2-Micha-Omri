@@ -50,7 +50,6 @@ public:
 	MapReduceState getState(void) const;
 
 	bool isDone(void) const;
-	
 	void wait(void);
 
 	OutputVec getOutput(void);
@@ -75,6 +74,7 @@ private:
   void update_state(MapReduceStage new_stage, uint64_t to_do);
   void threadWorker(int id);
   void shuffleFunc();
+  int find_max_back() const;
 };
 	
 #endif // MAP_REDUCE_JOB_H
