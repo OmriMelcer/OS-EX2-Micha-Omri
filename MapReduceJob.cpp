@@ -23,11 +23,10 @@ MapReduceJob::MapReduceJob(const MapReduceClient &client, const InputVec &inputV
 void MapReduceJob::threadWorker(int id)
 {
   bool id0 = id == 0;
-  bool not_done = false;
   while (true)
   {
     int cur_index = indexer.fetch_add(1);
-    if (cur_index>=inputVec.size())
+    if (cur_index>=(int)inputVec.size())
     {
       break;
     }
@@ -52,19 +51,18 @@ void MapReduceJob::threadWorker(int id)
     }
     update_state(SHUFFLE_STAGE,acum);
     shuffleFunc();
-
-    update_state(REDUCE_STAGE, acum);
+    update_state(REDUCE_STAGE, shuffleQueue.size());
   }
   barrier.arrive_and_wait();
   // reduce
   while (true)
   {
     int cur_index = indexer.fetch_add(1);
-    if (cur_index>= shuffleQueue.size())
+    if (cur_index>= (int)shuffleQueue.size())
     {
       break;
     }
-    client.reduce(shuffleQueue[cur_index].first, shuffleQueue[cur_index].second, reduceContext);
+    client.reduce(shuffleQueue[cur_index], reduceContext);
     state_incoder++;
   }
 }
@@ -150,7 +148,8 @@ void MapReduceJob::wait(void)
 
 OutputVec MapReduceJob::getOutput(void)
 {
-    // TODO: implement this function
+    wait();
+    return *outputVec;
 }
 
 bool MapReduceJob::isDone(void) const
