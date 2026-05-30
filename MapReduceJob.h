@@ -68,6 +68,7 @@ private:
   std::vector<IntermediateVec> shuffleQueue;
   std::mutex outputVecMutex;
   std::vector<MapContext> mapContexts; 
+  ReduceContext reduceContext;
   std::barrier<> barrier;
   std::mutex waitMutex;
   bool joined;

@@ -11,12 +11,12 @@ Implement:
 
 MapReduceJob::MapReduceJob(const MapReduceClient &client, const InputVec &inputVec, int multiThreadLevel)
   : inputVec(inputVec), client(client), numThreads(multiThreadLevel),
-    indexer(0), state_incoder(0), barrier(multiThreadLevel), joined(false)
+   indexer(0), state_incoder(0), outputVec(std::make_shared<OutputVec>()),
+   reduceContext(outputVec, outputVecMutex), barrier(multiThreadLevel), joined(false)
 {
   update_state(MAP_STAGE,inputVec.size());
   mapContexts = std::vector<MapContext> (numThreads,MapContext());
   threads.reserve(numThreads);
-  outputVec = std::make_shared<OutputVec>();
   for (int i = 0; i<numThreads;i++)
     {threads.emplace_back(&MapReduceJob::threadWorker, this, i);}
 }
@@ -52,13 +52,20 @@ void MapReduceJob::threadWorker(int id)
     }
     update_state(SHUFFLE_STAGE,acum);
     shuffleFunc();
+
     update_state(REDUCE_STAGE, acum);
   }
   barrier.arrive_and_wait();
   // reduce
   while (true)
   {
-
+    int cur_index = indexer.fetch_add(1);
+    if (cur_index>= shuffleQueue.size())
+    {
+      break;
+    }
+    client.reduce(shuffleQueue[cur_index].first, shuffleQueue[cur_index].second, reduceContext);
+    state_incoder++;
   }
 }
 
