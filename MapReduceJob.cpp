@@ -15,7 +15,7 @@ MapReduceJob::MapReduceJob(const MapReduceClient &client,
 {
   if (numThreads <= 0)
   {
-    update_state(UNDEFINED_STAGE_STAGE, 0);
+    update_state(UNDEFINED_STAGE, 0);
     return;
   }
   update_state(MAP_STAGE, inputVec.size());
@@ -57,10 +57,6 @@ void MapReduceJob::threadWorker(int id)
     }
     update_state(SHUFFLE_STAGE, acum);
     shuffleFunc();
-    for (int i= 0; i < shuffleQueue.size(); i++)
-    {
-      acum+= shuffleQueue[i].size();
-    }
     update_state(REDUCE_STAGE, acum);
   }
   barrier.arrive_and_wait();
